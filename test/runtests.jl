@@ -50,5 +50,7 @@ s = FrameToTableauScheme()
 dt3 = DataTableaux.fit_transform!(s, df)
 @test dt3.raw == dt.raw
 
+# test `getindex`
+dt[10:12,:]
 
 

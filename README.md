@@ -10,17 +10,17 @@ high-performance tree-based machine learning algorithms. The number of
 values taken by a categorical feature in this data structure is
 intentionally limited to 53.  This is because at nodes of a decision
 tree or tree regressor the criterion for a binary split based on such
-a feature (specifically, a subset of $$\{1, 2, 3, \ldots, 53\}$$ can
+a feature (specifically, a subset of `1:52`) can
 be encoded in a single `Float64` number, just as the threshold for
 ordinal features. The nodes in such a tree can therefore be of
 homogeneous type.
 
 The `Float64` array encoding the data is stored in the field
 `raw::Array{Float64, 2}`. The other fields are `names`, `nrows` and
-`ncols` (which are self-explanatory) and a field `scheme` (of type
-`FrameToTableauScheme`) which stores information on which columns are
-categorical and how to transform back and forth between a categorical
-feature and its equivalent floating point representation.
+`ncols` (which are self-explanatory) and a field `encoding` which
+stores information on which columns are categorical, and how to
+transform back and forth between a categorical feature and its
+equivalent `Float64` integer representation.
 
 ## Constuctors
 
@@ -47,10 +47,10 @@ feature and its equivalent floating point representation.
     │ 2   │ Ann        │ 12.0       │
     │ 3   │ Bob        │ 15.0       │
 
-Note that in the all constructors treat numerical features (eltype a
-subtype of `Real`) as ordinals and all features of `Char` or
-`AbstractString` as identified as categorical, which become `Float64`
-integers in the internal representation:
+All constructors treat columns of numerical eltype (subtype of `Real`)
+as ordinals, and all columns of eltype `Char` or `AbstractString` as
+categorical, which become `Float64` integers in the
+internal representation:
 
     julia> dt.raw
 
@@ -59,8 +59,8 @@ integers in the internal representation:
     0.0  12.0
     1.0  15.0
 
-More usually be contructing `DataTableau` objects from existing
-`DataFrame` objects; there are methods provided to do this:
+More usually, `DataTableau` objects are constructed from existing
+`DataFrame` objects; there are several methods provided to do this:
 
     # load a reduced Ames House Price data set as a `DataFrame`:
     df = DataTableaux.load_reduced_ames()
@@ -88,7 +88,7 @@ More usually be contructing `DataTableau` objects from existing
     # construct an unfitted transformation scheme
     s = FrameToTableauScheme()
 
-    # fit to the training `DataFrame` (return value:
+    # fit to the training `DataFrame` (return value the fitted form of `s`)
     DataTableaux.fit!(s, df) 
 
     # obtain the corresponding `DataTableaux` object:
@@ -116,7 +116,18 @@ implemented. There is a `row` method.
 
 ## Other methods
 
-Sample use of some implemented methods:
+Most `getindex` methods of `DataFrame` objects are implimented, for example:
+
+   julia> dt[10:12,:]
+   (Displaying DataTableau as DataFrame)
+   3×13 DataFrames.DataFrame. Omitted printing of 10 columns
+   │ Row │ OverallQual (1,ord) │ Neighborhood (2,cat) │ GarageCars (3,ord) │
+   ├─────┼─────────────────────┼──────────────────────┼────────────────────┤
+   │ 1   │ 5.0                 │ BrkSide              │ 1.0                │
+   │ 2   │ 5.0                 │ Sawyer               │ 1.0                │ 
+   │ 3   │ 9.0                 │ NridgHt              │ 3.0                │
+
+All the following also make sense:
 
     `length(dt), size(dt), convert(DataFrame, dt), head(dt), countmap(dt[1])`
 
@@ -124,6 +135,6 @@ Sample use of some implemented methods:
 ## `IntegerSet`
 
 Query with `?IntegerSet` to see how to switch between subsets of the
-first 52 `Small` integers and `Float64's.
+first 52 integers and `Float64's.
 
 
