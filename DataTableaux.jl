@@ -1,15 +1,15 @@
 module DataTableaux
 
-export Small, IntegerSet, DataTableau, row, head, countmap, FrameToTableauScheme
+export Small, IntegerSet, DataTableau, row, head, countmap
 
 # hoping I can dump this:
 # export push!, in, round, show, showall, Float64
 
 # currently commenting out next because of anticipated confilicts with Koala
-# export fit!, transform, fit_transform!, inverse_transform
+# export fit!, transform, fit_transform!, inverse_transform, FrameToTableauScheme
 
 using DataFrames
-import CSV
+# using ADBUtilities
 
 # to be extended:
 import StatsBase.countmap
@@ -32,11 +32,16 @@ const srcdir = dirname(@__FILE__)
 
 ## Helpers:
 
-tail(n) = "..."*string(n)[end-3:end]
-
-"""Load a reduced version of the public Ames Housing dataset."""
-load_reduced_ames() =
-    CSV.read(joinpath(srcdir, "data", "reduced_ames.csv"))
+"""Load a well-known public regression dataset."""
+function load_boston()
+    df = CSV.read(joinpath(srcdir, "data", "Boston.csv"))
+    features = filter(names(df)) do f
+        f != :MedV
+    end
+    X = df[features] 
+    y = df[:MedV]
+    return X, y 
+end
 
 function second_less_than(pair1, pair2)
     return pair1[2]<pair2[2]
@@ -66,7 +71,7 @@ f)`.
 
 To instantiate an empty collection use, `IntegerSet()`. To add an
 element `i::Integer` use `push!(s, i)` which is quickest if `i` is
-type `Small=UInt8`. Membership is tested as usual with `in`. One can also
+type `UInt8`. Membership is tested as usual with `in`. One can also
 instantiate an object with multiple elements as in the following example:
 
     julia> 15 in IntegerSet([1, 24, 16])
@@ -265,21 +270,20 @@ end
 
 function fit!(scheme::FrameToTableauScheme, df::AbstractDataFrame)
     ncols = size(df, 2)
-    schemes = Array{StringToSmallFloatScheme}(ncols)
-    is_ordinal = Array{Bool}(ncols)
+    schemes = Array(StringToSmallFloatScheme, ncols)
+    is_ordinal = Array(Bool, ncols)
     for j in 1:ncols
-        col = [df[j]...] # shrink eltype 
-        column_type = eltype(col)
+        column_type = eltype(df[j])
         if column_type <: Real
             is_ordinal[j] = true
             schemes[j] = VoidScheme
-        elseif column_type <: Union{AbstractString,Char}
+        elseif column_type in [String, Char]
             is_ordinal[j] = false
-            col = sort([string(s) for s in col])
+            col = sort([string(s) for s in df[j]])
             schemes[j] = StringToSmallFloatScheme(col)
         else
-            error("I have encountered an `AbstractDataFrame` column" *
-                  " of eltype $column_type, which prevents `DataTableau` constuction.")
+            error("I have encountered an AbstractDataFrame column" *
+                  " of inadmissable type for transforming to DataTableau constuction.")
         end
     end
     scheme.encoding = DataTableauEncoding(schemes, is_ordinal, names(df))
@@ -307,7 +311,7 @@ function transform(scheme::FrameToTableauScheme, df::AbstractDataFrame)
                                          "object into DataTableau object using "*
                                          " incompatible encoding.")
     nrows, ncols = size(df)
-    raw    = Array{Float64}((nrows, ncols))
+    raw    = Array(Float64, (nrows, ncols))
     
     for j in 1:ncols
         if encoding.is_ordinal[j]
@@ -334,7 +338,7 @@ function convert(T::Type{DataFrame}, dt::DataTableau)
     return DataFrame(columns(dt), dt.names) # columns(dt) defined later
 end
 
-function inverse_transform(s::FrameToTableauScheme, df::DataTableau)
+function inverse_transform(s::FrameToTableScheme, df::DataTableau)
     return convert(DataFrame, df)
 end
 
@@ -344,25 +348,15 @@ end
 DataTableau(df::AbstractDataFrame) = transform(FrameToTableauScheme(df), df)
 
 function DataTableau(;columns::Vector=Any[], names::Vector{Symbol}=Symbol[])
-
     ncols = length(columns)
-
     if ncols == 0
         throw(Base.error("Error constructing DataTableau object. 
                          It must have at least one column."))
     end
-
-    if isempty(names)
-        names = Vector{Symbol}(ncols)
-        for i in 1:ncols
-            names[i] = Symbol(string("x", i))
-        end
-    end
-    
     if length(names) != ncols
         throw(Base.error("You must supply one column name per column."))
     end
-
+    
     nrows = length(columns[1])
     if sum([length(v)!=nrows for v in columns]) != 0
         throw(Base.error("Error constructing DataTableau object. 
@@ -372,17 +366,15 @@ function DataTableau(;columns::Vector=Any[], names::Vector{Symbol}=Symbol[])
     return DataTableau(df)
 end
                                 
-########################################################
-# function DataTableau(column_tuple...)                #
-#     n_cols = length(column_tuple)                    #
-#     cols = collect(column_tuple)                     #
-#     colnames = Vector{Symbol}(n_cols)                #
-#     for i in 1:n_cols                                #
-#         colnames[i]=Symbol(string("x",i))            #
-#     end                                              #
-#     return DataTableau(columns=cols, names=colnames) #
-# end                                                  #
-########################################################
+function DataTableau(column_tuple...)
+    n_cols = length(column_tuple)
+    cols = collect(column_tuple)
+    colnames = Vector{Symbol}(n_cols)
+    for i in 1:n_cols
+        colnames[i]=Symbol(string("x",i))
+    end
+    return DataTableau(columns=cols, names=colnames)
+end
 
 function FrameToTableauScheme(X::DataTableau)
     s = FrameToTableauScheme()
@@ -409,7 +401,7 @@ function show(stream::IO, dt::DataTableau; nrows=0)
         nrows = dt.nrows
     end
     ncols = dt.ncols
-    types = Array{String}(ncols)
+    types = Array(String, ncols)
     for j in 1:ncols
         if dt.encoding.is_ordinal[j]
             types[j] = "ord"
