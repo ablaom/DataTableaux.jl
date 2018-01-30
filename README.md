@@ -118,14 +118,14 @@ implemented. There is a `row` method.
 
 Most `getindex` methods of `DataFrame` objects are implimented, for example:
 
-   julia> dt[10:12,:]
-   (Displaying DataTableau as DataFrame)
-   3×13 DataFrames.DataFrame. Omitted printing of 10 columns
-   │ Row │ OverallQual (1,ord) │ Neighborhood (2,cat) │ GarageCars (3,ord) │
-   ├─────┼─────────────────────┼──────────────────────┼────────────────────┤
-   │ 1   │ 5.0                 │ BrkSide              │ 1.0                │
-   │ 2   │ 5.0                 │ Sawyer               │ 1.0                │ 
-   │ 3   │ 9.0                 │ NridgHt              │ 3.0                │
+    julia> dt[10:12,:]
+    (Displaying DataTableau as DataFrame)
+    3×13 DataFrames.DataFrame. Omitted printing of 10 columns
+    │ Row │ OverallQual (1,ord) │ Neighborhood (2,cat) │ GarageCars (3,ord) │
+    ├─────┼─────────────────────┼──────────────────────┼────────────────────┤
+    │ 1   │ 5.0                 │ BrkSide              │ 1.0                │
+    │ 2   │ 5.0                 │ Sawyer               │ 1.0                │ 
+    │ 3   │ 9.0                 │ NridgHt              │ 3.0                │
 
 All the following also make sense:
 
