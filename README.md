@@ -1,15 +1,16 @@
-# `DataTableaux.jl`: an alternative to `DataFrames.jl` for tree-based
-  learning algorithms
+# DataTableaux.jl
+
+## An alternative to `DataFrames.jl` for tree-based learning algorithms
 
 A `DataTableau` object is an immutable data structure that presents
-externally as a `DataFrame` object whose columns are a mixture of
+externally much like a `DataFrame` object whose columns are a mixture of
 categorical and ordinal type. Internally, however it stores this data
 as an ordinary `Float64` array that can then be passed to
 high-performance tree-based machine learning algorithms. The number of
 values taken by a categorical feature in this data structure is
 intentionally limited to 53.  This is because at nodes of a decision
 tree or tree regressor the criterion for a binary split based on such
-a feature (specifically, a subset of \\(\{1, 2, 3, \ldots, 53\}\\) can
+a feature (specifically, a subset of $$\{1, 2, 3, \ldots, 53\}$$ can
 be encoded in a single `Float64` number, just as the threshold for
 ordinal features. The nodes in such a tree can therefore be of
 homogeneous type.
