@@ -104,7 +104,7 @@ More usually, `DataTableau` objects are constructed from existing
     dt3.raw == dt.raw # true
 
 Note that the `fit!`, `transform`, `inverse_transform` and
-`fit_transform!` methods are not brought explicity into scope with
+`fit_transform!` methods are not brought explicitly into scope with
 `using DataTableaux` to avoid conflict with methods of the same name
 in many machine learning packages.
 
@@ -116,7 +116,7 @@ implemented. There is a `row` method.
 
 ## Other methods
 
-Most `getindex` methods of `DataFrame` objects are implimented, for example:
+Most `getindex` methods of `DataFrame` objects are implemented, for example:
 
     julia> dt[10:12,:]
     (Displaying DataTableau as DataFrame)
