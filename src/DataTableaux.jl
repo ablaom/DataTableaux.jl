@@ -1,3 +1,4 @@
+__precompile__()
 module DataTableaux
 
 export Small, IntegerSet, DataTableau, row, head, countmap, FrameToTableauScheme

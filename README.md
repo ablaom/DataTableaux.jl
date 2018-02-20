@@ -3,8 +3,8 @@
 ## An alternative to `DataFrames.jl` for tree-based learning algorithms
 
 A `DataTableau` object is an immutable data structure that presents
-externally much like a `DataFrame` object whose columns are a mixture of
-categorical and ordinal type. Internally, however it stores this data
+externally much like a `DataFrame` object; its columns are a mixture of
+categorical and ordinal type. Internally, however, it stores this data
 as an ordinary `Float64` array that can then be passed to
 high-performance tree-based machine learning algorithms. The number of
 values taken by a categorical feature in this data structure is
