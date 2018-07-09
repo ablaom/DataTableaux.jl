@@ -3,7 +3,7 @@ using Base.Test
 
 # construct a `DataTableau` object directly:
 employees = ["Bob", "Ann", "Bob"]
-hours = [10, 12, 15]
+hours = [10.0, 12.0, 15.0]
 dt = DataTableau(columns = Any[employees, hours], names = [:employee, :hours])
 
 # or, with automatic naming of columns:
@@ -11,6 +11,13 @@ dt = DataTableau(columns = Any[employees, hours])
 
 # load a reduced Ames House Price data set as a `DataFrame`:
 df = DataTableaux.load_reduced_ames()
+
+# make integer types float (else considered categorical):
+for ftr in names(df)
+    if eltype(df[ftr]) <: Integer
+        df[ftr] = convert(Array{Float64}, df[ftr])
+    end
+end
 
 # split into train and test sets:
 ntrain = round(Int, 0.8*size(df,1))

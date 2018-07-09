@@ -271,16 +271,13 @@ function fit!(scheme::FrameToTableauScheme, df::AbstractDataFrame)
     for j in 1:ncols
         col = [df[j]...] # shrink eltype 
         column_type = eltype(col)
-        if column_type <: Real
+        if column_type <: AbstractFloat
             is_ordinal[j] = true
             schemes[j] = VoidScheme
-        elseif column_type <: Union{AbstractString,Char}
+        else
             is_ordinal[j] = false
             col = sort([string(s) for s in col])
             schemes[j] = StringToSmallFloatScheme(col)
-        else
-            error("I have encountered an `AbstractDataFrame` column" *
-                  " of eltype $column_type, which prevents `DataTableau` constuction.")
         end
     end
     scheme.encoding = DataTableauEncoding(schemes, is_ordinal, names(df))
