@@ -28,7 +28,7 @@ equivalent `Float64` integer representation.
 
     julia> using DataTableaux
     julia> employees = ["Bob", "Ann", "Bob"]
-    julia> hours = [10, 12, 15]
+    julia> hours = [10.0, 12.0, 15.0]
     julia> dt = DataTableau(columns = Any[employees, hours], names = [:employee, :hours])
 
     3×2 DataFrames.DataFrame
@@ -47,10 +47,9 @@ equivalent `Float64` integer representation.
     │ 2   │ Ann        │ 12.0       │
     │ 3   │ Bob        │ 15.0       │
 
-All constructors treat columns of numerical eltype (subtype of `Real`)
-as ordinals, and all columns of eltype `Char` or `AbstractString` as
-categorical, which become `Float64` integers in the
-internal representation:
+All constructors treat columns of `AbstractFloat` eltype as ordinals,
+and all other columns as categorical, which become `Float64` integers
+in the internal representation:
 
     julia> dt.raw
 
