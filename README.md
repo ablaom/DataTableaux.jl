@@ -1,5 +1,8 @@
 # DataTableaux.jl
 
+This is a dependency of old versions of my KoalaTrees package and is no
+longer being maintained.
+
 ## An alternative to `DataFrames.jl` for tree-based learning algorithms
 
 A `DataTableau` object is an immutable data structure that presents
